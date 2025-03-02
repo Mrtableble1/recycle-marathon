@@ -1,0 +1,80 @@
+import pygame
+import random
+
+HEIGHT = 800
+WIDTH = 800
+
+TITLE = "Take the trash out"
+
+screen = pygame.display.set_mode((WIDTH,HEIGHT))
+pygame.display.set_caption(TITLE)
+
+bg = pygame.image.load("image/natare bg.png")
+bin = pygame.image.load("image/bin.png")
+box = pygame.image.load("image/box.png")
+paperbag = pygame.image.load("image/paperbag.png")
+pencil = pygame.image.load("image/pencil.png")
+plasticbag = pygame.image.load("image/plastic bag.png")
+#bin
+class Bin(pygame.sprite.Sprite):
+    def __init__(self,y,x):
+        super().__init__()
+        self.image = bin
+        self.image = pygame.transform.scale(self.image,(50,80))
+        self.rect = self.image.get_rect()
+        self.rect.y = y
+        self.rect.x = x
+
+bin = Bin(50,50)
+bin_sprites = pygame.sprite.Group()
+bin_sprites.add(bin)
+
+#recycle
+class Recycle(pygame.sprite.Sprite):
+    def __init__(self,y,x,image):
+        super().__init__()
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.y = y
+        self.rect.x = x
+
+pb = random.randint(10,15)
+b = random.randint(10,15)
+p = random.randint(10,15)
+
+recycle_sprites = pygame.sprite.Group()
+
+for i in range(pb):
+    x = random.randint(50,750)
+    y = random.randint(50,750)
+    rs = Recycle(x,y,paperbag)
+    recycle_sprites.add(rs)
+
+for i in range(b):
+    x = random.randint(50,750)
+    y = random.randint(50,750)
+    rs = Recycle(x,y,box)
+    recycle_sprites.add(rs)
+
+for i in range(p):
+    x = random.randint(50,750)
+    y = random.randint(50,750)
+    rs = Recycle(x,y,pencil)
+    recycle_sprites.add(rs)
+
+
+run = 1
+
+while run == 1:
+    screen.blit(bg,(0,0))
+    recycle_sprites.draw(screen)
+    bin_sprites.draw(screen)
+
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = 0
+
+
+
+    pygame.display.update()
