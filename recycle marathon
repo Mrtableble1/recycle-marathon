@@ -1,5 +1,8 @@
 import pygame
 import random
+import time
+pygame.init()
+pygame.mixer.init()
 
 HEIGHT = 800
 WIDTH = 800
@@ -13,8 +16,11 @@ bg = pygame.image.load("image/natare bg.png")
 bin = pygame.image.load("image/bin.png")
 box = pygame.image.load("image/box.png")
 paperbag = pygame.image.load("image/paperbag.png")
+paperbag = pygame.transform.scale(paperbag,(50,50))
 pencil = pygame.image.load("image/pencil.png")
 plasticbag = pygame.image.load("image/plastic bag.png")
+errorsound = pygame.mixer.Sound("image/error-126627.mp3")
+correctsound = pygame.mixer.Sound("image/correct3-95630.mp3")
 #bin
 class Bin(pygame.sprite.Sprite):
     def __init__(self,y,x):
@@ -28,6 +34,24 @@ class Bin(pygame.sprite.Sprite):
 bin = Bin(50,50)
 bin_sprites = pygame.sprite.Group()
 bin_sprites.add(bin)
+
+class Plastic(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+        super().__init__()
+        self.image = plasticbag
+        self.image = pygame.transform.scale(self.image,(50,80))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+plastic_sprites = pygame.sprite.Group()
+
+for i in range(10):
+    x = random.randint(50,750)
+    y = random.randint(50,750)
+    plasticsprite = Plastic(x,y)
+    plastic_sprites.add(plasticsprite)
+
 
 #recycle
 class Recycle(pygame.sprite.Sprite):
@@ -62,6 +86,11 @@ for i in range(p):
     rs = Recycle(x,y,pencil)
     recycle_sprites.add(rs)
 
+score = 0
+
+start_time = time.time()
+
+game_over = False
 
 run = 1
 
@@ -69,11 +98,75 @@ while run == 1:
     screen.blit(bg,(0,0))
     recycle_sprites.draw(screen)
     bin_sprites.draw(screen)
+    plastic_sprites.draw(screen)
+
+    font = pygame.font.SysFont("Arial",25)
+    msg = font.render("score: "+str(score),True,"blue")
+    screen.blit(msg,(25,25))
+
+    keyspressed = pygame.key.get_pressed()
+
+
+    total_time = time.time()-start_time
+
+
+    font = pygame.font.SysFont("Arial",25)
+    msg = font.render("time: "+str(round(60-total_time,2)),True,"red")
+    screen.blit(msg,(25,75))
+
+    if score == 30:
+        font = pygame.font.SysFont("Arial",25)
+        msg = font.render("You won!",True,"Green")
+        screen.blit(msg,(400,400))
+        pygame.display.update()
+        pygame.time.delay(5000)
+        run = 0
+
+
+    if total_time > 60:
+        game_over = True
+        font = pygame.font.SysFont("Arial",25)
+        msg = font.render("Game over!",True,"black")
+        screen.blit(msg,(400,400))
+        pygame.display.update()
+        pygame.time.delay(5000)
+        run = 0
+        
 
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = 0
+
+    if pygame.sprite.groupcollide(recycle_sprites,bin_sprites,True,False):
+        correctsound.play()
+        score += 1
+
+    if pygame.sprite.groupcollide(plastic_sprites,bin_sprites,True,False):
+        errorsound.play()
+        score -= 3
+    #move
+    if keyspressed[pygame.K_d]:
+        bin.rect.x += 3
+
+    if keyspressed[pygame.K_a]:
+        bin.rect.x += -3
+
+    if keyspressed[pygame.K_s]:
+        bin.rect.y += 3
+
+    if keyspressed[pygame.K_w]:
+        bin.rect.y += -3
+
+    if bin.rect.y < 0:
+        bin.rect.y = 0
+
+    if bin.rect.y > 750:
+        bin.rect.y = 750
+
+    if bin.rect.x < 0:
+        bin.rect.x = 0
+
 
 
 
